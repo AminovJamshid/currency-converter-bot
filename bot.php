@@ -34,6 +34,12 @@ if (isset($update->message)) {
         $bot->handleStartCommand($chat_id);
         return;
     }
+
+    if (is_numeric($text)) {
+        $bot->handleAmount($chat_id, (int) $text);
+    } else {
+        $bot->handleNonNumericInput($chat_id);
+    }
 }
 
 if ($update->callback_query) {
@@ -42,10 +48,12 @@ if ($update->callback_query) {
     $chatId        = $callbackQuery->message->chat->id;
     $messageId     = $callbackQuery->message->message_id;
 
+    $currency->storeState($chatId, $callbackData);
+
     $bot->http->post('sendMessage', [
         'form_params' => [
             'chat_id' => $chatId,
-            'text'    => print_r($callbackQuery, true),
+            'text'    => 'Please, enter amount:',
         ]
     ]);
     return;
